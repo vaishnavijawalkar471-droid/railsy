@@ -16,9 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body>
-        <TrainProvider />
         <ThemeProvider>
-          {children}
+        <TrainProvider>
+         {children}
+        </TrainProvider>
         </ThemeProvider>
       </body>
     </html>
