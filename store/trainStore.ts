@@ -1,13 +1,20 @@
 import { create } from "zustand";
-import { TrainStatus } from "@/types";
-interface TrainStore {
-  train: TrainStatus | null;
-  loading: boolean;
-  setTrain: (t: TrainStatus) => void;
-  setLoading: (b: boolean) => void;
+
+export interface Train {
+  trainId: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  speed: number;
+  status: string;
 }
+
+interface TrainStore {
+  trains: Train[];
+  setTrains: (trains: Train[]) => void;
+}
+
 export const useTrainStore = create<TrainStore>((set) => ({
-  train: null, loading: false,
-  setTrain: (train) => set({ train }),
-  setLoading: (loading) => set({ loading }),
+  trains: [],
+  setTrains: (trains) => set({ trains }),
 }));
