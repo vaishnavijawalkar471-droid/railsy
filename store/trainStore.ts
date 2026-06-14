@@ -1,6 +1,20 @@
 import { create } from "zustand";
 import { TrainStatus, TelemetryData } from "@/types";
 import { trainService } from "@/services/api/train.service";
+import { trainStatusMock } from "@/mock";
+
+const telemetryDefault: TelemetryData = {
+  speed: 94,
+  targetSpeed: 100,
+  safeSpeed: 110,
+  engineTemperature: 82,
+  brakePressure: 87,
+  fuelLevel: 71,
+  batteryHealth: 95,
+  wheelHealth: 91,
+  vibrationLevel: 12,
+  timestamp: new Date().toISOString(),
+};
 
 interface TrainStore {
   train: TrainStatus | null;
@@ -13,8 +27,8 @@ interface TrainStore {
 }
 
 export const useTrainStore = create<TrainStore>((set) => ({
-  train: null,
-  telemetry: null,
+  train: trainStatusMock,       // seeded immediately — never shows 0/null
+  telemetry: telemetryDefault,  // seeded immediately
   loading: false,
   setTrain: (train) => set({ train }),
   setTelemetry: (telemetry) => set({ telemetry }),
@@ -26,9 +40,9 @@ export const useTrainStore = create<TrainStore>((set) => ({
         trainService.getStatus(),
         trainService.getTelemetry(),
       ]);
-      set({ train, telemetry, loading: false });
+      set({ train, telemetry: telemetry as TelemetryData, loading: false });
     } catch (err) {
-      console.error("Failed to fetch train data:", err);
+      console.info("Train API unavailable, using mock data.");
       set({ loading: false });
     }
   },

@@ -7,6 +7,19 @@ import SpeedGauge from "@/components/charts/SpeedGauge";
 import { trainService } from "@/services/api/train.service";
 import { api } from "@/services/api/axios";
 import { TrainStatus, TelemetryData } from "@/types";
+import { trainStatusMock } from "@/mock";
+
+const telemetryDefault: TelemetryData = {
+  speed: 94, targetSpeed: 100, safeSpeed: 110,
+  engineTemperature: 82, brakePressure: 87, fuelLevel: 71,
+  batteryHealth: 95, wheelHealth: 91, vibrationLevel: 12,
+  timestamp: new Date().toISOString(),
+};
+
+const aiDecisionsMockDefault: AIDecision[] = [
+  { id: "AI-1", type: "SPEED_ADJUSTMENT" as any, trainId: "TR-4481", confidence: 92, riskReduction: 34, recommendedValue: 85, reasoning: "Track anomaly detected 1.2 km ahead. Recommend speed reduction to 85 km/h.", status: "PENDING" },
+  { id: "AI-2", type: "MAINTENANCE_ALERT" as any, trainId: "TR-9088", confidence: 87, riskReduction: 61, reasoning: "Wheel wear pattern indicates maintenance required within 200 km.", status: "APPROVED" },
+];
 
 interface AIDecision {
   id: string;
@@ -20,27 +33,28 @@ interface AIDecision {
 }
 
 export default function TrainHealthPage() {
-  const [train, setTrain] = useState<TrainStatus | null>(null);
-  const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
-  const [aiDecisions, setAiDecisions] = useState<AIDecision[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [train, setTrain] = useState<TrainStatus | null>(trainStatusMock);
+  const [telemetry, setTelemetry] = useState<TelemetryData | null>(telemetryDefault);
+  const [aiDecisions, setAiDecisions] = useState<AIDecision[]>(aiDecisionsMockDefault);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<string>("—");
+  const [lastUpdate, setLastUpdate] = useState<string>("Mock data");
 
   const fetchAll = async () => {
+    setLoading(true);
     try {
       const [trainData, telemetryData, aiData] = await Promise.all([
         trainService.getStatus().catch(() => null),
         trainService.getTelemetry().catch(() => null),
-        api.get("/api/ai/decisions").then((r) => r.data).catch(() => []),
+        api.get("/api/ai/decisions").then((r) => r.data).catch(() => null),
       ]);
-      setTrain(trainData);
-      setTelemetry(telemetryData);
-      setAiDecisions(aiData as AIDecision[]);
+      if (trainData) setTrain(trainData);
+      if (telemetryData) setTelemetry(telemetryData);
+      if (aiData && aiData.length > 0) setAiDecisions(aiData as AIDecision[]);
       setLastUpdate(new Date().toLocaleTimeString());
       setError(null);
     } catch (err) {
-      setError("Failed to load train health data");
+      console.info("Train API unavailable, using mock data.");
     } finally {
       setLoading(false);
     }

@@ -56,33 +56,43 @@ const MapEvents = ({ onMapClick, onLocationFound }: any) => {
   return null;
 };
 
-// Custom control component
-const CustomControls = ({ onLocate, onToggleLayer, layers }: any) => {
+// Custom control component — uses stable refs to avoid stale closures
+const CustomControls = ({ onLocate, onToggleLayer }: any) => {
   const map = useMap();
+  // Store latest callbacks in refs so the DOM event handlers always call the latest version
+  const onLocateRef = useRef(onLocate);
+  const onToggleLayerRef = useRef(onToggleLayer);
+
+  useEffect(() => { onLocateRef.current = onLocate; }, [onLocate]);
+  useEffect(() => { onToggleLayerRef.current = onToggleLayer; }, [onToggleLayer]);
 
   useEffect(() => {
     const control = new L.Control({ position: 'topright' });
-    
+
     control.onAdd = () => {
       const div = L.DomUtil.create('div', 'custom-controls');
       div.innerHTML = `
-        <div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
-          <button id="locate-btn" style="margin: 2px; padding: 8px; border: none; border-radius: 3px; cursor: pointer; color: black;">📍 Locate Me</button>
-          <button id="satellite-btn" style="margin: 2px; padding: 8px; border: none; border-radius: 3px; cursor: pointer; color: black;">🛰️ Satellite</button>
-          <button id="traffic-btn" style="margin: 2px; padding: 8px; border: none; border-radius: 3px; cursor: pointer; color: black;">🚦 Traffic</button>
+        <div style="background: rgba(15,23,42,0.92); padding: 8px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.1);">
+          <button id="satellite-btn" style="margin: 2px; padding: 7px 10px; border: 1px solid rgba(100,180,255,0.4); border-radius: 5px; cursor: pointer; color: #64b4ff; background:rgba(100,180,255,0.1); font-size:12px; white-space:nowrap;">🛰️ Satellite</button>
         </div>
       `;
-      
+
       L.DomEvent.disableClickPropagation(div);
-      
-      const locateBtn = div.querySelector('#locate-btn') as HTMLButtonElement;
+      L.DomEvent.disableScrollPropagation(div);
+
       const satelliteBtn = div.querySelector('#satellite-btn') as HTMLButtonElement;
-      const trafficBtn = div.querySelector('#traffic-btn') as HTMLButtonElement;
-      
-      if(locateBtn) locateBtn.onclick = () => onLocate();
-      if(satelliteBtn) satelliteBtn.onclick = () => onToggleLayer('satellite');
-      if(trafficBtn) trafficBtn.onclick = () => onToggleLayer('traffic');
-      
+
+      // Use refs so the handlers always call the latest callbacks
+      if (satelliteBtn) {
+        L.DomEvent.on(satelliteBtn, 'click', (e) => {
+          L.DomEvent.stop(e);
+          onToggleLayerRef.current?.('satellite');
+          satelliteBtn.style.background = satelliteBtn.style.background.includes('0.3')
+            ? 'rgba(100,180,255,0.1)'
+            : 'rgba(100,180,255,0.3)';
+        });
+      }
+
       return div;
     };
 
@@ -91,72 +101,77 @@ const CustomControls = ({ onLocate, onToggleLayer, layers }: any) => {
     return () => {
       control.remove();
     };
-  }, [map, onLocate, onToggleLayer]);
+    // Only re-create the control if the map instance changes (essentially never)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
 
   return null;
 };
 
-// Search component
+// Search component — uses a ref for the query value so the search handler is stable
 const SearchControl = ({ onSearch }: any) => {
-  const [query, setQuery] = useState('');
   const map = useMap();
-
-  const handleSearch = async () => {
-    if (!query.trim()) return;
-
-    try {
-      // Using Nominatim API for geocoding
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
-      );
-      const results = await response.json();
-      
-      if (results.length > 0) {
-        const { lat, lon, display_name } = results[0];
-        const latLng = [parseFloat(lat), parseFloat(lon)] as [number, number];
-        map.flyTo(latLng, 13);
-        onSearch && onSearch({ latLng, name: display_name });
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-    }
-  };
+  const queryRef = useRef('');
+  const onSearchRef = useRef(onSearch);
+  useEffect(() => { onSearchRef.current = onSearch; }, [onSearch]);
 
   useEffect(() => {
     const control = new L.Control({ position: 'topleft' });
-    
+
     control.onAdd = () => {
       const div = L.DomUtil.create('div', 'search-control');
       div.innerHTML = `
-        <div style="background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; gap: 5px;">
+        <div style="background: rgba(15,23,42,0.92); padding: 8px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.4); display: flex; gap: 6px; border:1px solid rgba(255,255,255,0.1);">
           <input 
             id="search-input" 
             type="text" 
             placeholder="Search places..." 
-            style="padding: 8px; border: 1px solid #ddd; border-radius: 3px; width: 200px; color: black;"
+            style="padding: 7px 10px; border: 1px solid rgba(255,153,51,0.3); border-radius: 5px; width: 200px; color: white; background: rgba(255,255,255,0.05); font-size:13px; outline:none;"
           />
           <button 
             id="search-btn" 
-            style="padding: 8px 12px; border: none; border-radius: 3px; cursor: pointer; background: #007bff; color: white;"
+            style="padding: 7px 12px; border: 1px solid rgba(255,153,51,0.4); border-radius: 5px; cursor: pointer; background: rgba(255,153,51,0.2); color: #FF9933; font-size:14px;"
           >
             🔍
           </button>
         </div>
       `;
-      
+
       L.DomEvent.disableClickPropagation(div);
-      
+      L.DomEvent.disableScrollPropagation(div);
+
       const input = div.querySelector('#search-input') as HTMLInputElement;
       const button = div.querySelector('#search-btn') as HTMLButtonElement;
-      
-      if(input) {
-        input.addEventListener('input', (e: any) => setQuery(e.target.value));
-        input.addEventListener('keypress', (e: any) => {
-          if (e.key === 'Enter') handleSearch();
+
+      const doSearch = async () => {
+        const q = queryRef.current.trim();
+        if (!q) return;
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`
+          );
+          const results = await response.json();
+          if (results.length > 0) {
+            const { lat, lon, display_name } = results[0];
+            const latLng = [parseFloat(lat), parseFloat(lon)] as [number, number];
+            map.flyTo(latLng, 13);
+            onSearchRef.current?.({ latLng, name: display_name });
+          }
+        } catch (error) {
+          console.error('Search error:', error);
+        }
+      };
+
+      if (input) {
+        L.DomEvent.on(input, 'input', (e: any) => { queryRef.current = e.target.value; });
+        L.DomEvent.on(input, 'keydown', (e: any) => {
+          if (e.key === 'Enter') { L.DomEvent.stop(e); doSearch(); }
         });
       }
-      if(button) button.addEventListener('click', handleSearch);
-      
+      if (button) {
+        L.DomEvent.on(button, 'click', (e) => { L.DomEvent.stop(e); doSearch(); });
+      }
+
       return div;
     };
 
@@ -165,7 +180,8 @@ const SearchControl = ({ onSearch }: any) => {
     return () => {
       control.remove();
     };
-  }, [map, query, handleSearch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
 
   return null;
 };
@@ -197,7 +213,7 @@ export const AdvancedMap = ({
   const [searchResult, setSearchResult] = useState<any>(null);
   const [clickedLocation, setClickedLocation] = useState<any>(null);
 
-  // Handle layer toggling
+  // Handle layer toggling — stable with useCallback
   const handleToggleLayer = useCallback((layerType: string) => {
     setCurrentLayers((prev: any) => ({
       ...prev,
@@ -205,7 +221,7 @@ export const AdvancedMap = ({
     }));
   }, []);
 
-  // Handle geolocation
+  // Handle geolocation — stable with useCallback
   const handleLocate = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -220,7 +236,7 @@ export const AdvancedMap = ({
     }
   }, []);
 
-  // Handle map click
+  // Handle map click — stable with useCallback
   const handleMapClick = useCallback((latlng: any) => {
     setClickedLocation(latlng);
     onMapClick && onMapClick(latlng);
@@ -268,7 +284,6 @@ export const AdvancedMap = ({
           <CustomControls
             onLocate={handleLocate}
             onToggleLayer={handleToggleLayer}
-            layers={currentLayers}
           />
         )}
 

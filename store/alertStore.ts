@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Alert } from "@/types";
 import { alertService } from "@/services/api/alert.service";
+import { alertsMock } from "@/mock";
 
 interface AlertStore {
   alerts: Alert[];
@@ -10,7 +11,7 @@ interface AlertStore {
 }
 
 export const useAlertStore = create<AlertStore>((set) => ({
-  alerts: [],
+  alerts: alertsMock,
   setAlerts: (alerts) => set({ alerts }),
   addAlert: (alert) => set((s) => ({ alerts: [alert, ...s.alerts] })),
   fetchAll: async () => {
@@ -18,7 +19,7 @@ export const useAlertStore = create<AlertStore>((set) => ({
       const alerts = await alertService.getAll();
       set({ alerts });
     } catch (err) {
-      console.error("Failed to fetch alerts:", err);
+      console.info("Alert API unavailable, using mock data.");
     }
   },
 }));

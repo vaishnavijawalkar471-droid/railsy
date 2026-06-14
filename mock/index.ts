@@ -1,4 +1,4 @@
-import { TrainStatus, Alert, CollisionRisk, FleetTrain, FleetSummary, MapTrain, RailwaySignal } from "@/types";
+import { TrainStatus, Alert, CollisionRisk, FleetTrain, FleetSummary, MapTrain, RailwaySignal, TrackAnomaly } from "@/types";
 
 export const trainStatusMock: TrainStatus = {
   trainId:"TR-4481", speed:94, fuelLevel:71, brakeStatus:"NORMAL",
@@ -40,4 +40,13 @@ export const nearbyTrainsMock: MapTrain[] = [
 export const signalsMock: RailwaySignal[] = [
   { id:"SIG-1", latitude:18.58, longitude:73.88, status:"green" },
   { id:"SIG-2", latitude:18.43, longitude:73.82, status:"yellow" },
+];
+
+export const trackAnomaliesMock: TrackAnomaly[] = [
+  { id: "TA-1", label: "Rail Surface Wear", value: "Moderate", color: "text-saffron-d dark:text-saffron" },
+  { id: "TA-2", label: "Joint Gap Anomaly", value: "Detected", color: "text-red-600 dark:text-red-400" },
+  { id: "TA-3", label: "Track Alignment", value: "Clear", color: "text-igreen dark:text-green-400" },
+  { id: "TA-4", label: "Ballast Condition", value: "Moderate", color: "text-saffron-d dark:text-saffron" },
+  { id: "TA-5", label: "Gradient Stress", value: "Clear", color: "text-igreen dark:text-green-400" },
+  { id: "TA-6", label: "Vibration Level", value: "Elevated", color: "text-saffron-d dark:text-saffron" },
 ];

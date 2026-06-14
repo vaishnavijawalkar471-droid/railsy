@@ -7,6 +7,18 @@ import { mapService } from "@/services/api/map.service";
 import { collisionService } from "@/services/api/collision.service";
 import { trainService } from "@/services/api/train.service";
 import { FleetTrain, MapTrain, RailwaySignal, CollisionRisk, TrainStatus, TelemetryData } from "@/types";
+import { trainStatusMock, collisionMock, fleetTrainsMock, signalsMock } from "@/mock";
+
+const telemetryMockLT: TelemetryData = {
+  speed: 94, targetSpeed: 100, safeSpeed: 110,
+  engineTemperature: 82, brakePressure: 87, fuelLevel: 71,
+  batteryHealth: 95, wheelHealth: 91, vibrationLevel: 12,
+  timestamp: new Date().toISOString(),
+};
+
+const mapTrainsMock: MapTrain[] = fleetTrainsMock.map(t => ({
+  trainId: t.trainId, latitude: t.latitude, longitude: t.longitude, heading: 45, speed: t.speed,
+}));
 
 export interface LiveTrackingState {
   trains: FleetTrain[];
@@ -23,15 +35,15 @@ export interface LiveTrackingState {
 
 export function useLiveTracking() {
   const [state, setState] = useState<LiveTrackingState>({
-    trains: [],
-    mapTrains: [],
-    signals: [],
-    collisionRisk: null,
-    trainStatus: null,
-    telemetry: null,
-    loading: true,
+    trains: fleetTrainsMock,
+    mapTrains: mapTrainsMock,
+    signals: signalsMock,
+    collisionRisk: collisionMock,
+    trainStatus: trainStatusMock,
+    telemetry: telemetryMockLT,
+    loading: false,
     connected: false,
-    lastUpdate: null,
+    lastUpdate: "Mock data",
     error: null,
   });
 
@@ -155,7 +167,8 @@ export function useLiveTracking() {
     });
 
     socket.on("connect_error", () => {
-      setState((prev) => ({ ...prev, connected: false, error: "WebSocket connection failed" }));
+      // Silently mark as disconnected; REST polling fallback handles data
+      setState((prev) => ({ ...prev, connected: false, error: null }));
     });
 
     // Fallback polling every 10s if WebSocket is not connected

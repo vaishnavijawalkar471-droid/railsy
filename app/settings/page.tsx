@@ -22,17 +22,17 @@ export default function SettingsPage() {
           {/* Map Theme */}
           <div>
             <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Map Style</label>
-            <select className="w-full p-3 rounded-lg bg-slate-50 dark:bg-d-surface border border-slate-200 dark:border-d-border text-sm focus:outline-none focus:ring-1 focus:ring-saffron">
-              <option>Dark</option>
-              <option>Satellite</option>
-              <option>Streets</option>
+            <select className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-saffron">
+              <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Dark</option>
+              <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Satellite</option>
+              <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Streets</option>
             </select>
           </div>
 
           {/* API URL */}
           <div>
             <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">API Base URL</label>
-            <input defaultValue="http://localhost:5001" className="w-full p-3 rounded-lg bg-slate-50 dark:bg-d-surface border border-slate-200 dark:border-d-border text-sm focus:outline-none focus:ring-1 focus:ring-saffron"/>
+            <input defaultValue="http://localhost:5001" className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-saffron placeholder:text-slate-400"/>
           </div>
 
           {/* Toggles */}

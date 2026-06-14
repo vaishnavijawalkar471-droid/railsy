@@ -6,6 +6,28 @@ import { useAlertStore } from "@/store/alertStore";
 import { useCollisionStore } from "@/store/collisionStore";
 import { useFleetStore } from "@/store/fleetStore";
 import { connectSocket, onSocketEvent } from "@/services/websocket/socket";
+import {
+  trainStatusMock,
+  alertsMock,
+  collisionMock,
+  fleetTrainsMock,
+  fleetSummaryMock,
+} from "@/mock";
+import { TelemetryData } from "@/types";
+
+// Mock telemetry data for when the API is unavailable
+const telemetryMock: TelemetryData = {
+  speed: 94,
+  targetSpeed: 100,
+  safeSpeed: 110,
+  engineTemperature: 82,
+  brakePressure: 87,
+  fuelLevel: 71,
+  batteryHealth: 95,
+  wheelHealth: 91,
+  vibrationLevel: 12,
+  timestamp: new Date().toISOString(),
+};
 
 export function useDataProvider() {
   const setTrain = useTrainStore((s) => s.setTrain);
@@ -16,7 +38,15 @@ export function useDataProvider() {
   const setSummary = useFleetStore((s) => s.setSummary);
 
   useEffect(() => {
-    // 1. Fetch initial data via REST API
+    // 1. Seed with mock data immediately so pages never show 0/loading
+    setTrain(trainStatusMock);
+    setTelemetry(telemetryMock);
+    setAlerts(alertsMock);
+    setRisk(collisionMock);
+    setTrains(fleetTrainsMock);
+    setSummary(fleetSummaryMock);
+
+    // 2. Fetch real data via REST API — overrides mocks if the backend is running
     const fetchInitial = async () => {
       try {
         const { trainService } = await import("@/services/api/train.service");
@@ -35,20 +65,21 @@ export function useDataProvider() {
           ]);
 
         if (train) setTrain(train);
-        if (telemetry) setTelemetry(telemetry);
+        if (telemetry) setTelemetry(telemetry as TelemetryData);
         if (alerts.length > 0) setAlerts(alerts);
         if (collision?.data) setRisk(collision.data);
         if (fleetTrains.length > 0) setTrains(fleetTrains);
         if (fleetSummary) setSummary(fleetSummary);
       } catch (err) {
-        console.warn("DataProvider: Initial fetch failed, relying on WS:", err);
+        // API unavailable — mock data is already in stores, nothing to do
+        console.info("DataProvider: Backend unavailable, using mock data.");
       }
     };
 
     fetchInitial();
 
-    // 2. Connect WebSocket for real-time updates
-    connectSocket();
+    // 3. Connect WebSocket for real-time updates
+    const socket = connectSocket();
     const unsub = onSocketEvent("update", (data: any) => {
       if (data.trainStatus) setTrain(data.trainStatus);
       if (data.telemetry) setTelemetry(data.telemetry);
@@ -62,5 +93,6 @@ export function useDataProvider() {
     return () => {
       unsub();
     };
-  }, [setTrain, setTelemetry, setAlerts, setRisk, setTrains, setSummary]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }

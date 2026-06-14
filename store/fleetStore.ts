@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { FleetTrain, FleetSummary } from "@/types";
 import { fleetService } from "@/services/api/fleet.service";
+import { fleetTrainsMock, fleetSummaryMock } from "@/mock";
 
 interface FleetStore {
   trains: FleetTrain[];
@@ -11,8 +12,8 @@ interface FleetStore {
 }
 
 export const useFleetStore = create<FleetStore>((set) => ({
-  trains: [],
-  summary: null,
+  trains: fleetTrainsMock,
+  summary: fleetSummaryMock,
   setTrains: (trains) => set({ trains }),
   setSummary: (summary) => set({ summary }),
   fetchAll: async () => {
@@ -23,7 +24,7 @@ export const useFleetStore = create<FleetStore>((set) => ({
       ]);
       set({ trains, summary });
     } catch (err) {
-      console.error("Failed to fetch fleet data:", err);
+      console.info("Fleet API unavailable, using mock data.");
     }
   },
 }));

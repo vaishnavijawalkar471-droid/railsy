@@ -5,6 +5,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import Card from "@/components/ui/PanelCard";
 import { trackService } from "@/services/api/track.service";
 import { api } from "@/services/api/axios";
+import { trackAnomaliesMock, signalsMock } from "@/mock";
 
 interface TrackAnomaly {
   id: string;
@@ -19,24 +20,25 @@ interface SignalData {
 }
 
 export default function TrackHealthPage() {
-  const [anomalies, setAnomalies] = useState<TrackAnomaly[]>([]);
-  const [signals, setSignals] = useState<SignalData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [anomalies, setAnomalies] = useState<TrackAnomaly[]>(trackAnomaliesMock);
+  const [signals, setSignals] = useState<SignalData[]>(signalsMock);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<string>("—");
+  const [lastUpdate, setLastUpdate] = useState<string>("Mock data");
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const [anomaliesData, signalsData] = await Promise.all([
-        trackService.getAnomalies().catch(() => []),
-        api.get("/api/map/signals").then((r) => r.data).catch(() => []),
+        trackService.getAnomalies().catch(() => null),
+        api.get("/api/map/signals").then((r) => r.data).catch(() => null),
       ]);
-      setAnomalies(anomaliesData as TrackAnomaly[]);
-      setSignals(signalsData as SignalData[]);
+      if (anomaliesData && anomaliesData.length > 0) setAnomalies(anomaliesData as TrackAnomaly[]);
+      if (signalsData && signalsData.length > 0) setSignals(signalsData as SignalData[]);
       setLastUpdate(new Date().toLocaleTimeString());
       setError(null);
     } catch (err) {
-      setError("Failed to load track health data");
+      console.info("Track API unavailable, using mock data.");
     } finally {
       setLoading(false);
     }
