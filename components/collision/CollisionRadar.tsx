@@ -1,15 +1,17 @@
 "use client";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import Card from "@/components/ui/Card";
-import { collisionMock as c } from "@/mock";
-const data = [
-  { metric:"Risk",       value: c.riskScore },
-  { metric:"Closing",    value: c.closingSpeed },
-  { metric:"Confidence", value: c.confidence },
-  { metric:"Speed",      value: 60 },
-  { metric:"Distance",   value: 55 },
-];
+import Card from "@/components/ui/PanelCard";
+import { useCollisionStore } from "@/store/collisionStore";
+
 export default function CollisionRadar() {
+  const risk = useCollisionStore((s) => s.risk);
+  const data = [
+    { metric:"Risk",       value: risk?.riskScore ?? 18 },
+    { metric:"Closing",    value: risk?.closingSpeed ?? 42 },
+    { metric:"Confidence", value: risk?.confidence ?? 87 },
+    { metric:"Speed",      value: 60 },
+    { metric:"Distance",   value: 55 },
+  ];
   return (
     <Card title="Collision Radar" accent="green">
       <div className="h-48">

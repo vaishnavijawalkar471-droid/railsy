@@ -32,7 +32,7 @@ export default function SettingsPage() {
           {/* API URL */}
           <div>
             <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">API Base URL</label>
-            <input defaultValue="http://localhost:5000" className="w-full p-3 rounded-lg bg-slate-50 dark:bg-d-surface border border-slate-200 dark:border-d-border text-sm focus:outline-none focus:ring-1 focus:ring-saffron"/>
+            <input defaultValue="http://localhost:5001" className="w-full p-3 rounded-lg bg-slate-50 dark:bg-d-surface border border-slate-200 dark:border-d-border text-sm focus:outline-none focus:ring-1 focus:ring-saffron"/>
           </div>
 
           {/* Toggles */}

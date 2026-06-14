@@ -1,41 +1,96 @@
 import type { Config } from "tailwindcss";
+
 const config: Config = {
-  darkMode: "class",
+  darkMode: ["class"],
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx}"
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./lib/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "sans-serif"],
+      },
       colors: {
-        /* Dark theme */
-        "d-bg":        "#060B1A",
-        "d-surface":   "#0D1426",
-        "d-card":      "#111E35",
-        "d-border":    "#1E3050",
-        /* Light theme */
-        "l-bg":        "#F0F2FA",
-        "l-surface":   "#FFFFFF",
-        "l-card":      "#FFFFFF",
-        "l-border":    "rgba(0,0,128,0.12)",
-        /* Brand */
-        saffron:       "#FF9933",
-        "saffron-d":   "#E65100",
-        "saffron-l":   "#FFF3E0",
-        igreen:        "#138808",
-        "igreen-d":    "#1B5E20",
-        "igreen-l":    "#E8F5E9",
-        navy:          "#000080",
-        "navy-l":      "#E8EAF6",
-        ashoka:        "#0047AB",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        /* Brand Colors (Subtle Indian Tricolor) */
+        saffron: {
+          DEFAULT: "#FF9933",
+          light: "#fff3e0",
+          dark: "#e65100",
+        },
+        igreen: {
+          DEFAULT: "#138808",
+          light: "#e8f5e9",
+          dark: "#1b5e20",
+        },
+        navy: {
+          DEFAULT: "#000080",
+          light: "#e8eaf6",
+          dark: "#00004d",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        panel: "0 0 20px rgba(0,0,128,0.08)",
-        "panel-dark": "0 0 20px rgba(0,212,255,0.06)",
+        premium: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
+        "premium-md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+        "premium-lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+        "premium-dark": "0 1px 3px 0 rgba(0, 0, 0, 0.5)",
       },
-      borderRadius: { panel: "10px" },
-    }
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
+
 export default config;

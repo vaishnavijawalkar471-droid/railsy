@@ -1,3 +1,10 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export function getThreatColor(score: number, dark = true): string {
   if (score <= 20) return dark ? "text-green-400"  : "text-green-700";
   if (score <= 50) return dark ? "text-yellow-400" : "text-yellow-600";

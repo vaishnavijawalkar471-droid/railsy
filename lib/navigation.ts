@@ -1,5 +1,6 @@
 export const navigationItems = [
   { id:"nav-dashboard",          label:"Dashboard",         href:"/dashboard",         icon:"LayoutDashboard" },
+  { id:"nav-features",           label:"Features",          href:"/features",          icon:"Zap" },
   { id:"nav-live-tracking",      label:"Live Tracking",     href:"/live-tracking",     icon:"Map" },
   { id:"nav-track-health",       label:"Track Health",      href:"/track-health",      icon:"Route" },
   { id:"nav-train-health",       label:"Train Health",      href:"/train-health",      icon:"HeartPulse" },

@@ -55,3 +55,7 @@ export interface MapTrain {
 export interface RailwaySignal {
   id: string; latitude: number; longitude: number; status: "green"|"yellow"|"red";
 }
+// ── Track ──────────────────────────────────────────────
+export interface TrackAnomaly {
+  id: string; label: string; value: string; color: string;
+}
